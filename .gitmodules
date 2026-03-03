@@ -1,0 +1,6 @@
+[submodule "src/piper_ros"]
+	path = src/piper_ros
+	url = https://github.com/agilexrobotics/piper_ros.git
+[submodule "includes/mujoco-py"]
+	path = includes/mujoco-py
+	url = https://github.com/openai/mujoco-py.git
