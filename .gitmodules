@@ -1,6 +1,13 @@
 [submodule "src/piper_ros"]
 	path = src/piper_ros
-	url = https://github.com/agilexrobotics/piper_ros.git
+	url = https://github.com/dt1729/piper_ros
+	branch = noetic
 [submodule "includes/mujoco-py"]
 	path = includes/mujoco-py
 	url = https://github.com/openai/mujoco-py.git
+[submodule "includes/robocasa"]
+	path = includes/robocasa
+	url = https://github.com/robocasa/robocasa.git
+[submodule "includes/robosuite"]
+	path = includes/robosuite
+	url = https://github.com/ARISE-Initiative/robosuite
