@@ -1,0 +1,11 @@
+## [Unreleased]
+
+### Added
+- PiperArm and PiperOmron robot support in robosuite
+  - PiperArm: 6-DOF manipulator by AgileX Robotics as a FixedBaseRobot
+  - PiperOmron: PiperArm on OmronMobileBase as a WheeledRobot with HYBRID_MOBILE_BASE controller
+  - MuJoCo XML model with correct gripper finger orientations (link7/link8) validated against piper_sim
+  - Tested in robocasa kitchen environments (PnPCounterToCab and others)
+- Forked robosuite and robocasa submodules to personal repos
+- Updated .gitmodules to point to personal forks (dt1729/robosuite, dt1729/robocasa)
+- Updated README with robocasa/robosuite setup instructions

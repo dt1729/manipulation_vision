@@ -14,10 +14,11 @@ A toolkit for vision-based robotic manipulation supporting MoveIt, reinforcement
 - RViz-based visualization and interactive control
 - CAN bus communication with the Piper arm via ROS Noetic
 
-### Reinforcement Learning
-- MuJoCo-based simulation environment (modern `mujoco` bindings)
-- PID-controlled joint actuation as a baseline
-- Gym-compatible interface for training RL policies
+### Reinforcement Learning / Synthetic Data (robocasa + robosuite)
+- PiperArm and PiperOmron (Piper arm on Omron mobile base) integrated into robosuite
+- Kitchen environment simulations via robocasa for pick-and-place, rearrangement tasks
+- Domain randomization support for sim-to-real transfer
+- MuJoCo-based physics with OSC_POSE and HYBRID_MOBILE_BASE controllers
 
 ### VLA (Vision-Language-Action)
 - Designed to support VLA model inference for manipulation tasks
@@ -25,7 +26,7 @@ A toolkit for vision-based robotic manipulation supporting MoveIt, reinforcement
 - Language-conditioned policy execution
 
 ## Sim-to-Real (Roadmap)
-- Domain randomization support via MuJoCo
+- Domain randomization via MuJoCo/robocasa
 - Policy transfer from simulation to the physical Piper arm
 - Calibration and state estimation utilities
 
@@ -36,7 +37,8 @@ manipulation_vision/
 ├── src/
 │   └── piper_ros/          # ROS Noetic workspace for Piper arm (submodule)
 ├── includes/
-│   └── robocasa/           # Simulation assets and environments (submodule)
+│   ├── robosuite/          # Robot simulation framework with PiperArm/PiperOmron (fork)
+│   └── robocasa/           # Kitchen environments and assets (fork)
 └── README.md
 ```
 
@@ -58,19 +60,26 @@ cd manipulation_vision
 git submodule update --init --recursive
 ```
 
-**2. Set up piper_ros**
+**2. Set up robosuite and robocasa**
+
+```bash
+pip install -e includes/robosuite
+pip install -e includes/robocasa
+```
+
+**3. Run a kitchen demo with PiperOmron**
+
+```bash
+python -m robocasa.demos.demo_kitchen_states --task PnPCounterToCab --robot PiperOmron
+```
+
+**4. Set up piper_ros (for real hardware)**
 
 ```bash
 cd src/piper_ros
 pip install python-can piper_sdk
 catkin_make
 source devel/setup.bash
-```
-
-**3. Install mujoco**
-
-```bash
-pip install mujoco
 ```
 
 ## License

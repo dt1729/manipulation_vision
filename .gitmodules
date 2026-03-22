@@ -7,7 +7,7 @@
 	url = https://github.com/openai/mujoco-py.git
 [submodule "includes/robocasa"]
 	path = includes/robocasa
-	url = https://github.com/robocasa/robocasa.git
+	url = https://github.com/dt1729/robocasa
 [submodule "includes/robosuite"]
 	path = includes/robosuite
-	url = https://github.com/ARISE-Initiative/robosuite
+	url = https://github.com/dt1729/robosuite
