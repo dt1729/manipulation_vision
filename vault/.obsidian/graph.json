@@ -1,0 +1,79 @@
+{
+  "collapse-filter": false,
+  "search": "",
+  "showTags": false,
+  "showAttachments": false,
+  "hideUnresolved": false,
+  "showOrphans": true,
+  "collapse-color-groups": false,
+  "colorGroups": [
+    {
+      "query": "tag:boundary",
+      "color": {
+        "a": 1,
+        "rgb": 14701909
+      }
+    },
+    {
+      "query": "tag:grey",
+      "color": {
+        "a": 1,
+        "rgb": 13934615
+      }
+    },
+    {
+      "query": "tag:pure_internal",
+      "color": {
+        "a": 1,
+        "rgb": 8947848
+      }
+    },
+    {
+      "query": "tag:external",
+      "color": {
+        "a": 1,
+        "rgb": 4890331
+      }
+    },
+    {
+      "query": "tag:stdlib",
+      "color": {
+        "a": 1,
+        "rgb": 6974058
+      }
+    },
+    {
+      "query": "tag:class",
+      "color": {
+        "a": 1,
+        "rgb": 10181046
+      }
+    },
+    {
+      "query": "tag:module",
+      "color": {
+        "a": 1,
+        "rgb": 3066993
+      }
+    },
+    {
+      "query": "tag:file",
+      "color": {
+        "a": 1,
+        "rgb": 1752220
+      }
+    }
+  ],
+  "collapse-display": false,
+  "showArrow": true,
+  "textFadeMultiplier": 0,
+  "nodeSizeMultiplier": 1,
+  "lineSizeMultiplier": 1,
+  "collapse-forces": false,
+  "centerStrength": 0.518713248970312,
+  "repelStrength": 10,
+  "linkStrength": 1,
+  "linkDistance": 250,
+  "scale": 1,
+  "close": false
+}

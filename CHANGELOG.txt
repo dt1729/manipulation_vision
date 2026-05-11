@@ -1,6 +1,21 @@
 ## [Unreleased]
 
 ### Added
+- Tactile sensing via individual MuJoCo `<touch>` sensors on Piper gripper finger pads
+  - 16×16 grid of independent sphere sites per finger (512 sensors total) injected
+    programmatically into link7/link8 at runtime — no changes to robot.xml required
+  - Achieves realistic multi-cell spatial activation (15–18/256 cells at peak press)
+    without fighting MuJoCo's point-contact sparsity; inspired by HandManipulateEgg-v1
+  - `scripts/orange_individual_touch.py`: orange_9 object squeezed between finger pads
+    with full timing benchmark; run with `--render` to produce annotated mp4, omit for
+    headless benchmark (3.7× realtime, ~4 s for 15 s of simulation)
+  - `scripts/individual_touch.py`: sphere-probe validation script (3×3 probe, 4×6 grid)
+  - Sensor sites placed on 1.9×2.8 mm cell pitch (30×45 mm pad), site radius 4 mm for
+    overlap coverage; contact filtering via contype/conaffinity bitmask ensures orange
+    only collides with finger pads (not wrist/arm)
+  - See README for design rationale and comparison with touch_grid plugin
+- `scripts/nine_sphere_touch.py`: 5×5 sphere probe pressed against finger pad to
+  visualize touch_grid plugin behavior; useful for contact model debugging
 - PiperArm and PiperOmron robot support in robosuite
   - PiperArm: 6-DOF manipulator by AgileX Robotics as a FixedBaseRobot
   - PiperOmron: PiperArm on OmronMobileBase as a WheeledRobot with HYBRID_MOBILE_BASE controller
