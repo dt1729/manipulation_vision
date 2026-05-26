@@ -1,0 +1,23 @@
+{
+    "sim": {
+        "timestep": 0.001,
+        "integrator": "IMPLICITFAST",
+        "iterations": 20
+    },
+    "motion": {
+        "settle_time": 1.0,
+        "duration": 10.0,
+        "max_vel": 0.4,
+        "max_acc": 0.3,
+        "atol": 0.01
+    },
+    "robot": {
+        "env_name": "PickPlaceCounterToCabinet",
+        "init_qpos": [0.0, 1.57, -1.57, 0.0, 1.22, 0.0, 0.0, 0.0]
+    },
+    "waypoints": [
+        [0.0,  0.5, -1.0,  0.0,  0.8,  0.0],
+        [0.5,  1.0, -1.5,  0.3,  0.5, -0.5],
+        [0.0,  1.57, -1.57, 0.0, 1.22,  0.0]
+    ]
+}

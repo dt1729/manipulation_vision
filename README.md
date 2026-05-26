@@ -103,6 +103,129 @@ depth at user-defined grid points — bypassing contact sparsity entirely and gi
 readings proportional to indentation depth. Upgrading to this sensor would be the
 highest-fidelity path for real tactile data collection.
 
+## Gain Tuning
+
+Position controller gains (`kp`, `kv`) for each Piper joint are tuned via an interactive GUI before deploying to simulation or hardware.
+
+### Tool: `includes/gain_tuner/tune_gains.py`
+
+Loads the bare `piper_description.xml`, presents sliders for `kp` and `kv` per joint, runs a step-response simulation, and plots reference vs actual position.
+
+**Why a separate tuner?**
+The full robocasa kitchen environment (arm + Omron mobile base + scene) has complex coupled dynamics that make oscillation root-cause analysis difficult. The tuner uses only the bare arm on a fixed base to isolate joint behaviour, then the tuned gains are transferred back.
+
+**Key simulation settings (matched to `send_joint_cmd.py`):**
+
+| Setting | Value | Reason |
+|---|---|---|
+| Timestep | 0.001 s | Halves robocasa default; reduces discretisation error at high `kp` |
+| Integrator | `IMPLICITFAST` | Adds implicit velocity damping — eliminates stiffness-driven oscillation |
+| Solver iterations | 20 | Better constraint resolution per step |
+| Start pose | `init_qpos` from `PiperOmron` | Matches real env starting configuration |
+
+**Usage:**
+
+```bash
+cd includes/gain_tuner
+python tune_gains.py
+# point at a different XML
+python tune_gains.py path/to/robot.xml
+```
+
+Adjust `kp` / `kv` sliders → set target position → click **Run Simulation** → inspect plots → click **Export XML** to save tuned gains back to file.
+
+---
+
+## Motion Profiling
+
+Raw step commands (jump directly to target) cause large instantaneous position errors, saturating actuators and exciting structural oscillations. All motion in this repo uses a **trapezoidal velocity profile**.
+
+### How it works
+
+For each waypoint, a per-joint profile is computed:
+
+```
+Phase 1 — Accelerate  : q(t) = q0 + ½ a t²
+Phase 2 — Cruise      : q(t) = q_acc + v_max (t - t_acc)
+Phase 3 — Decelerate  : mirror of acceleration
+```
+
+All joints are **time-synchronised** — the slowest joint (longest travel) sets the total duration, and every other joint scales its cruise velocity down to match. This keeps the end-effector on a straight joint-space path.
+
+A **triangular profile** is used automatically when the distance is too short to reach `max_vel` (avoids overshoot on small moves).
+
+**Additionally**, a configurable settle period holds the robot at `init_qpos` before the first waypoint fires, allowing startup transients from the physics engine to decay.
+
+### Parameters (set in `scripts/config/piper_behavior.json`)
+
+| Parameter | Default | Description |
+|---|---|---|
+| `max_vel` | 0.4 rad/s | Peak joint velocity during cruise |
+| `max_acc` | 0.3 rad/s² | Acceleration / deceleration ramp rate |
+| `settle_time` | 1.0 s | Hold time at start before first move |
+| `atol` | 0.01 rad | Convergence tolerance to declare waypoint reached |
+
+---
+
+## Behavior Config (`scripts/config/piper_behavior.json`)
+
+All runtime parameters are centralised in a single JSON file. CLI flags act as per-run overrides without modifying the file.
+
+```json
+{
+    "sim": {
+        "timestep": 0.001,
+        "integrator": "IMPLICITFAST",
+        "iterations": 20
+    },
+    "motion": {
+        "settle_time": 1.0,
+        "duration": 10.0,
+        "max_vel": 0.4,
+        "max_acc": 0.3,
+        "atol": 0.01
+    },
+    "robot": {
+        "env_name": "PickPlaceCounterToCabinet",
+        "init_qpos": [0.0, 1.57, -1.57, 0.0, 1.22, 0.0, 0.0, 0.0]
+    },
+    "waypoints": [
+        [0.0,  0.5, -1.0,  0.0,  0.8,  0.0],
+        [0.5,  1.0, -1.5,  0.3,  0.5, -0.5],
+        [0.0,  1.57, -1.57, 0.0, 1.22,  0.0]
+    ]
+}
+```
+
+### Config sections
+
+| Section | Purpose |
+|---|---|
+| `sim` | Physics engine settings — timestep, integrator, solver iterations |
+| `motion` | Trapezoidal profile parameters and convergence tolerance |
+| `robot` | Environment name and arm starting pose |
+| `waypoints` | Ordered list of joint-space targets `[j1..j6]` in radians |
+
+### Running
+
+```bash
+# Execute all waypoints from config
+python scripts/send_joint_cmd.py
+
+# Override a single parameter without editing the file
+python scripts/send_joint_cmd.py --max-vel 0.2 --settle 2.0
+
+# Single target (overrides config waypoints)
+python scripts/send_joint_cmd.py --joints 0 0.5 -1.0 0 0.8 0
+
+# Use a different config file
+python scripts/send_joint_cmd.py --config scripts/config/pick_place.json
+```
+
+The config is designed to grow — future sections for IK targets, Cartesian waypoints, and task parameters can be added without changing the script interface.
+
+---
+
 ## Sim-to-Real (Roadmap)
 - Domain randomization via MuJoCo/robocasa
 - Policy transfer from simulation to the physical Piper arm
@@ -112,11 +235,23 @@ highest-fidelity path for real tactile data collection.
 
 ```
 manipulation_vision/
-├── src/
-│   └── piper_ros/          # ROS Noetic workspace for Piper arm (submodule)
+├── scripts/
+│   ├── config/
+│   │   └── piper_behavior.json     # Centralised behavior config (sim, motion, waypoints)
+│   ├── send_joint_cmd.py           # Joint-space waypoint execution with trapezoidal profiling
+│   ├── orange_individual_touch.py  # 16×16 tactile grid demo
+│   └── rgbd_stream.py              # RGB-D point cloud streaming
 ├── includes/
-│   ├── robosuite/          # Robot simulation framework with PiperArm/PiperOmron (fork)
-│   └── robocasa/           # Kitchen environments and assets (fork)
+│   ├── gain_tuner/
+│   │   └── tune_gains.py           # Interactive kp/kv tuning GUI
+│   ├── robosuite/                  # Robot simulation framework with PiperArm/PiperOmron (fork)
+│   ├── robocasa/                   # Kitchen environments and assets (fork)
+│   └── mujoco-py/                  # Legacy mujoco-py bindings (reference)
+├── src/
+│   └── piper_ros/                  # ROS Noetic workspace for Piper arm (submodule)
+│       ├── piper_description/      # URDF and MuJoCo model for Piper arm
+│       ├── piper_sim/              # MuJoCo simulation nodes
+│       └── piper_moveit/           # MoveIt configuration
 └── README.md
 ```
 
