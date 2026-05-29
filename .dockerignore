@@ -1,0 +1,8 @@
+.git
+**/__pycache__
+**/*.pyc
+**/*.egg-info
+**/*.pyo
+scripts/*.mp4
+scripts/*.npy
+includes/mujoco-py
