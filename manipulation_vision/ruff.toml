@@ -1,0 +1,36 @@
+# Lint rules for the Python packages, mirroring the lld-seed conventions
+# (/data/repos/claude_lld/ruff.toml). ROS code under src/ is not covered.
+
+line-length = 100
+target-version = "py312"
+
+[lint]
+select = [
+    "F", "E", "W", "I", "N", "UP", "B", "A", "C4", "SIM", "RET", "ARG", "PTH",
+    "TRY", "BLE", "FBT", "ANN", "C90", "PL", "RUF",
+]
+ignore = [
+    "ANN401",  # Any is sometimes the honest annotation at a boundary
+    "TRY003",  # long messages inside raise: our error messages are the interface
+    "PLR2004", # magic value comparison
+]
+
+[lint.mccabe]
+max-complexity = 10
+
+[lint.pylint]
+max-args = 6
+max-branches = 12
+max-statements = 50
+max-returns = 8
+
+[lint.per-file-ignores]
+"**/tests/**" = ["ANN", "PLR2004", "S101", "ARG", "E501"]
+
+[lint.flake8-annotations]
+mypy-init-return = true
+suppress-none-returning = true
+
+[format]
+quote-style = "double"
+indent-style = "space"
